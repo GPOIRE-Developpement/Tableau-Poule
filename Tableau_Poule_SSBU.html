@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Poule</title>
+</head>
+<body>
+    <style>
+        .poule-container {
+            width: 47%;
+            margin-right: 3%; /* Ajoute une marge à droite pour l'espace entre les conteneurs */
+        }
+
+        .bracket {
+            clear: both;
+            margin-top: 20px;
+        }
+
+        .bracket-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .bracket-table th, .bracket-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+    <div class="poule-container" id="p1">
+        <h2>Poule 1</h2>
+        <table id="pl1-table" style="border-collapse: collapse; width: 100%;" border="1">
+            <tr id="pl1-title">
+                <th>Participant</th>
+                <th><input type="text" id="pl1-p1" onchange="ChangeName(this)" value="Participant 1"></th>
+                <th><input type="text" id="pl1-p2" onchange="ChangeName(this)" value="Participant 2"></th>
+                <th><input type="text" id="pl1-p3" onchange="ChangeName(this)" value="Participant 3"></th>
+                <th><input type="text" id="pl1-p4" onchange="ChangeName(this)" value="Participant 4"></th>
+                <th>Total Victoire</th>
+                <th>Total Score</th>
+            </tr>
+            <tr>
+                <td id="pl1-p1v">Participant 1</td>
+                <td id="">Impossible</td>
+                <td><input type="text" id="pl1-p1vsp2" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p1vsp3" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p1vsp4" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="number" id="pl1-p1victory" class="victoire" value="0"></td>
+                <td><input type="number" id="pl1-p1score" class="score" value="0"></td>
+            </tr>
+            <tr>
+                <td id="pl1-p2v">Participant 2</td>
+                <td><input type="text" id="pl1-p2vsp1" onchange="ChangeScore(this)" value="/"></td>
+                <td id="pl1-p2vsp2">Impossible</td>
+                <td><input type="text" id="pl1-p2vsp3" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p2vsp4" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="number" id="pl1-p2victory" class="victoire" value="0"></td>
+                <td><input type="number" id="pl1-p2score" class="score" value="0"></td>
+            </tr>
+            <tr>
+                <td id="pl1-p3v">Participant 3</td>
+                <td><input type="text" id="pl1-p3vsp1" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p3vsp2" onchange="ChangeScore(this)" value="/"></td>
+                <td id="pl1-p3vsp3">Impossible</td>
+                <td><input type="text" id="pl1-p3vsp4" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="number" id="pl1-p3victory" class="victoire" value="0"></td>
+                <td><input type="number" id="pl1-p3score" class="score" value="0"></td>
+            </tr>
+            <tr>
+                <td id="pl1-p4v">Participant 4</td>
+                <td><input type="text" id="pl1-p4vsp1" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p4vsp2" onchange="ChangeScore(this)" value="/"></td>
+                <td><input type="text" id="pl1-p4vsp3" onchange="ChangeScore(this)" value="/"></td>
+                <td id="pl1-p4vsp4">Impossible</td>
+                <td><input type="number" id="pl1-p4victory" class="victoire" value="0"></td>
+                <td><input type="number" id="pl1-p4score" class="score" value="0"></td>
+            </tr>
+        </table>
+    </div>
+
+
+    <button id="best-player">Meilleur Joueur de Chaque Poule</button>
+
+    <script>
+        const number_poule = 1
+        const number_player_poule = 4
+
+
+        var BestPlayer = document.getElementById('best-player');
+
+        BestPlayer.addEventListener('click', function() {
+            afficherMeilleurs()
+        });
+
+        function ChangeName(input) {
+            var valeurModifiee = input.value;
+
+            var id_input = input.id.split('-')
+            var id_output = id_input[0]+"-"+id_input[1]+"v"
+
+            document.getElementById(id_output).innerHTML = valeurModifiee;
+        }
+
+        function ChangeScore(input) {
+            var value = input.value;
+            
+            var poule = input.id.split('-')[0]
+            var id_input = input.id.split('-')[1].split('vs');
+
+            var id_output = poule+"-"+id_input[1]+"vs"+id_input[0];
+
+            EditFinalScore(value, id_input[0], poule)
+
+            if(input.value.split('/').length != 2){
+                document.getElementById(input.id).value = "/";
+            }else{
+                var score = value.split('/')
+                document.getElementById(id_output).value = score[1]+"/"+score[0];
+                EditFinalScore(score[1]+"/"+score[0], id_input[1], poule)
+            }
+        }
+
+        function EditFinalScore(score, line, poule) {
+            var count_victory = 0
+            var count_score = 0
+            for(let i = 1; i <= 4; i++){
+                var case_score = document.getElementById(poule+"-"+line+"vsp"+i)
+
+                if(case_score && case_score.value && case_score.value != "/"){
+                    var score = case_score.value.split('/')
+                    if(parseInt(score[0]) > parseInt(score[1])){
+                        count_victory = count_victory+1
+                    }
+                    count_score = count_score+parseInt(score[0])
+                }
+            }
+            document.getElementById(poule+"-"+line+"victory").value = count_victory
+            document.getElementById(poule+"-"+line+"score").value = count_score
+        }
+
+        function afficherMeilleurs() {
+            for(let poule = 1; poule <= number_poule; poule++){
+                // Récupérer le tableau
+                var tableau = document.getElementById('pl'+poule+'-table');
+
+                // Récupérer toutes les lignes du tableau
+                var lignes = Array.from(tableau.getElementsByTagName('tr'));
+                lignes.shift();
+
+                lignes.sort(function (a, b) {
+                    var victoireA = parseInt(a.querySelector('.victoire').value, 10);
+                    var scoreA = parseInt(a.querySelector('.score').value, 10);
+                    var victoireB = parseInt(b.querySelector('.victoire').value, 10);
+                    var scoreB = parseInt(b.querySelector('.score').value, 10);
+
+                    if (victoireA !== victoireB) {
+                        return victoireB - victoireA;
+                    } else {
+                        return scoreB - scoreA;
+                    }
+                });
+
+                for (var i = 0; i < Math.min(2, lignes.length); i++) {
+                    var ligne = lignes[i];
+                    var id = ligne.querySelector('.victoire').id;
+                    var victoire = ligne.querySelector('.victoire').value;
+                    var score = ligne.querySelector('.score').value;
+
+                    console.log({
+                        ligne, 
+                        id,
+                        victoire, 
+                        score
+                    })
+
+                    DeleteTable()
+                }
+            }
+        }
+
+        function DeleteTable(){
+            var pouleContainers = document.querySelectorAll('.poule-container');
+
+            // Parcourir la liste des éléments et les supprimer un par un
+            pouleContainers.forEach(function (pouleContainer) {
+                pouleContainer.parentNode.removeChild(pouleContainer);
+            });
+
+            var bestPlayerButton = document.getElementById('best-player');
+
+            // Vérifier si l'élément existe avant de le supprimer
+            if (bestPlayerButton) {
+                bestPlayerButton.parentNode.removeChild(bestPlayerButton);
+            }
+        }
+    </script>
+
+</body>
+</html>
